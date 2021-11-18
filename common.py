@@ -28,7 +28,7 @@ class ConfigRandLA:
 
 
 class Config:
-    def __init__(self, ds_name='miso_ts', cls_type=''):
+    def __init__(self, ds_name='ycb', cls_type=''):
         self.dataset_name = ds_name
         self.exp_dir = os.path.dirname(__file__)
         self.exp_name = os.path.basename(self.exp_dir)
@@ -58,7 +58,7 @@ class Config:
         self.val_mini_batch_size = 3
         self.test_mini_batch_size = 1
 
-        self.n_sample_points = 480 * 640 // 24  # Number of input points
+        self.n_sample_points = 480 * 640 # Number of input points
         self.n_keypoints = 8
         self.n_min_points = 400
 
@@ -94,83 +94,6 @@ class Config:
             self.ycb_r_lst = list(np.loadtxt(ycb_r_lst_p))
             self.ycb_cls_lst = self.read_lines(self.ycb_cls_lst_p)
             self.ycb_sym_cls_ids = [13, 16, 19, 20, 21]
-        elif self.dataset_name == 'miso_ts':
-            self.n_objects = 1 + 1  # 1 object + background
-            self.miso_ts_cls_list = [
-                1,2,3,4,5,6,7,8,9,10
-            ]
-            self.miso_ts_sym_cls_ids = []
-            self.miso_ts_obj_dict = {
-                '010304': 1,
-                '010305': 2,
-                '010312': 3,
-                '010313': 4,
-                '040207': 5,
-                '040209': 6,
-                '010202': 7,
-                '010204': 8,
-                '010321': 9,
-                '010201': 10,
-            }
-            try:
-                self.cls_id = self.miso_ts_obj_dict[cls_type]
-            except Exception:
-                pass
-            self.miso_ts_id2obj_dict = dict(
-                zip(self.miso_ts_obj_dict.values(), self.miso_ts_obj_dict.keys())
-            )
-            self.miso_ts_root = os.path.abspath(
-                os.path.join(self.exp_dir, 'datasets/miso_ts/')
-            )
-            self.use_orbfps = True
-            self.kp_orbfps_dir = 'datasets/miso_ts/kps_orb9_fps/'
-            self.kp_orbfps_ptn = os.path.join(self.kp_orbfps_dir, '%s_%d_kps.txt')
-            # FPS
-            self.miso_ts_fps_kps_dir = os.path.abspath(
-                os.path.join(self.exp_dir, 'datasets/miso_ts/miso_ts_obj_kps/')
-            )
-            miso_ts_r_pth = os.path.join(self.miso_ts_root, "dataset_config/models_info.yml")
-            miso_ts_r_file = open(os.path.join(miso_ts_r_pth), "r")
-            self.miso_ts_r_lst = yaml.load(miso_ts_r_pth)
-
-        elif self.dataset_name == 'miso_big':
-            self.n_objects = 1 + 1  # 1 object + background
-            self.miso_big_cls_list = [
-                1,2,3,4,5,6,7,8,9,10
-            ]
-            self.miso_big_sym_cls_ids = []
-            self.miso_big_obj_dict = {
-                '030102': 1,
-                '070205': 2,
-                '070608': 3,
-                '070708': 4,
-                '100211': 5,
-                '070710': 6,
-                '090206': 7,
-                '070702': 8,
-                '070308': 9,
-                '060201': 10,
-            }
-            try:
-                self.cls_id = self.miso_big_obj_dict[cls_type]
-            except Exception:
-                pass
-            self.miso_big_id2obj_dict = dict(
-                zip(self.miso_big_obj_dict.values(), self.miso_big_obj_dict.keys())
-            )
-            self.miso_big_root = os.path.abspath(
-                os.path.join(self.exp_dir, 'datasets/miso_big/')
-            )
-            self.use_orbfps = True
-            self.kp_orbfps_dir = 'datasets/miso_big/kps_orb9_fps/'
-            self.kp_orbfps_ptn = os.path.join(self.kp_orbfps_dir, '%s_%d_kps.txt')
-            # FPS
-            self.miso_big_fps_kps_dir = os.path.abspath(
-                os.path.join(self.exp_dir, 'datasets/miso_big/miso_big_obj_kps/')
-            )   
-            miso_big_r_pth = os.path.join(self.miso_big_root, "dataset_config/models_info.yml")
-            miso_big_r_file = open(os.path.join(miso_big_r_pth), "r")
-            self.miso_big_r_lst = yaml.load(miso_big_r_pth)
         else:  # linemod
             self.n_objects = 1 + 1  # 1 object + background
             self.n_classes = self.n_objects

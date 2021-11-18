@@ -34,7 +34,6 @@ from utils.pvn3d_eval_utils_kpls import TorchEval
 from utils.basic_utils import Basic_Utils
 import datasets.linemod.linemod_dataset as dataset_desc
 # MISO dataset
-import miso_dataset.Miso_Dataset as misodataset_desc
 from apex.parallel import DistributedDataParallel
 from apex.parallel import convert_syncbn_model
 from apex import amp
@@ -244,7 +243,7 @@ def model_fn_decorator(
 
             end_points = model(cu_dt)
             # labels, pred
-            labels = cu_dt['labels']
+            labels = cu_dt['rgb_labels']
             loss_rgb_seg = criterion(
                 end_points['pred_rgb_segs'], labels.view(-1)
             ).sum()
@@ -261,7 +260,7 @@ def model_fn_decorator(
             loss = sum([ls * w for ls, w in loss_lst])
 
             _, cls_rgb = torch.max(end_points['pred_rgb_segs'], 1)
-            acc_rgb = (cls_rgb == labels).float().sum() / labels.numel()
+            acc_rgb = (cls_rgb == labels.view(3,-1)).float().sum() / labels.view(-1).numel()
 
             if args.debug:
                 show_lb = view_labels(
@@ -283,7 +282,7 @@ def model_fn_decorator(
                 'loss_target': loss.item()
             }
             acc_dict = {
-                'acc_rgb': acc_rgbd.item(),
+                'acc_rgb': acc_rgb.item(),
             }
             info_dict = loss_dict.copy()
             info_dict.update(acc_dict)
@@ -589,7 +588,7 @@ def train():
     rndla_cfg = ConfigRandLA
     #model change
     model = PXVN(
-        n_classes=config.n_objects, n_pts=config.n_sample_points, n_kps=config.n_keypoints
+        n_classes=config.n_objects, n_kps=config.n_keypoints
     )
     model = convert_syncbn_model(model)
     device = torch.device('cuda:{}'.format(args.local_rank))
