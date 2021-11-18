@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from cnn.pspnet import PSPNet
-import pytorch_utils as pt_utils
+from models.cnn.pspnet import PSPNet
+import models.pytorch_utils as pt_utils
 
 
 psp_models = {
@@ -124,12 +124,14 @@ class PXVN(nn.Module):
             # decode rgb upsampled feature
             rgb_emb = self.cnn_up_stages[i_up](rgb_emb)
         # final upsample layers:
+        #3 64 480 640
+        bs, di, _, _ = rgb_emb.size()
         rgb_emb = self.cnn_up_stages[n_up_layers-1](rgb_emb)
+        rgb_emb_c = rgb_emb.view(bs, di, -1)
         # ###################### prediction stages #############################
-        rgb_segs = self.rgb_seg_layer(rgb_emb)
-        pred_kp_ofs = self.kp_ofst_layer(rgb_emb)
-        pred_ctr_ofs = self.ctr_ofst_layer(rgb_emb)
-
+        rgb_segs = self.rgb_seg_layer(rgb_emb_c)
+        pred_kp_ofs = self.kp_ofst_layer(rgb_emb_c)
+        pred_ctr_ofs = self.ctr_ofst_layer(rgb_emb_c)
         pred_kp_ofs = pred_kp_ofs.view(
             bs, self.n_kps, 3, -1
         ).permute(0, 1, 3, 2).contiguous()
